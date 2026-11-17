@@ -1,0 +1,15 @@
+{
+  "name": "sekret-tools-lab",
+  "version": "4.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "node tools/server.mjs",
+    "build": "node tools/build.mjs",
+    "preview": "node tools/server.mjs dist",
+    "check": "node tools/check.mjs",
+    "test": "node --test tests.test.mjs",
+    "preview:mobile": "node tools/server.mjs dist --lan"
+  },
+  "description": "SEKRET Tools Lab v3 \u0432\u0402\u201d content-aware photo effects, audio direction and media-reactive visual systems"
+}

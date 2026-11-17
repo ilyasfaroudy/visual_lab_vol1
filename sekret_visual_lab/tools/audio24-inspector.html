@@ -1,0 +1,4 @@
+<!doctype html><meta charset="utf-8"><title>Audio 24 inspector check</title><link rel="stylesheet" href="../src/styles/main.css"><style>body{min-width:1200px}#status{position:fixed;z-index:999;left:0;top:0;background:#000;color:#fff;font:12px monospace}</style><pre id="status">LOADING</pre><div id="lab"></div><script type="module">
+import {AudioLab} from '../src/audio/AudioLab.js';
+try {const lab=new AudioLab(document.querySelector('#lab'),()=>{}, {sceneId:'geometry-field',demo:true}); const root=lab.root;const checks=[root.querySelectorAll('[data-value-range]').length===8,root.querySelectorAll('[data-map-source]').length===8,root.querySelectorAll('.focus-section').length===5,root.querySelector('[aria-label="Camera view scale"]')?.max==='3.5'];document.querySelector('#status').textContent=checks.every(Boolean)?'PASS / 8 parameters · 8 routes · 5 groups · zoom 3.5':'FAIL '+checks;}catch(e){document.querySelector('#status').textContent='FAIL '+e.stack;}
+</script>

@@ -1,0 +1,2 @@
+export const HERO_DEFAULTS={radius:112,strength:1,detail:34,revealSpeed:10,recoverySpeed:1.65,fragments:48,brightness:1.25};
+export function heroConfig(input={}){const limits={radius:[60,180],strength:[0,1],detail:[16,80],revealSpeed:[2,20],recoverySpeed:[.5,5],fragments:[24,100],brightness:[.4,2]};return Object.fromEntries(Object.entries(HERO_DEFAULTS).map(([k,v])=>[k,Number.isFinite(input?.[k])?Math.max(limits[k][0],Math.min(limits[k][1],input[k])):v]));}

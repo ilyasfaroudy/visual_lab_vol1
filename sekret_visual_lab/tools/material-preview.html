@@ -1,0 +1,28 @@
+<!doctype html><meta charset="utf-8"><title>SEKRET — Material studies</title>
+<style>body{margin:25px;background:#09090c;color:#eee;font:11px monospace}h1{font:38px Arial;letter-spacing:-2px}#grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}figure{margin:0;border:1px solid #30242b;padding:8px}img{width:100%;display:block}figcaption{padding:9px 0;color:#bfb0ba}pre{color:#cdadbc;white-space:pre-wrap}button{background:#74253f;color:white;border:0;padding:12px;margin-bottom:20px}</style>
+<h1>SEKRET / MATERIAL STUDIES</h1><pre id="status">Rendering changed systems…</pre><button id="save">SAVE NEW PREVIEWS</button><div id="grid"></div>
+<script type="module">
+import {AudioGPU} from '../src/audio/gpuEngine.js';
+import {SCENE_MAP,LOOKS,applyLook,PALETTES} from '../src/audio/scenes.js';
+import {processEffect,imagePresets} from '../src/image/effects.js';
+const canvas=document.createElement('canvas'),gpu=new AudioGPU(canvas),results=[],images={};
+function card(name,data){const fig=document.createElement('figure'),img=new Image(),caption=document.createElement('figcaption');img.src=data;caption.textContent=name;fig.append(img,caption);document.querySelector('#grid').append(fig);}
+const type=document.createElement('canvas');type.width=1024;type.height=512;const ctx=type.getContext('2d');ctx.fillStyle='white';ctx.font='900 180px Arial';ctx.textAlign='center';ctx.fillText('СЕКРЕТ',512,310);
+try{
+for(const [id,v] of [['spectral-bloom',0],['spectral-bloom',1],['phase-torus',0],['phase-torus',1],['phase-torus',2],['voice-sculpture',0],['reactive-typography',10],['particle-web',0],['geometry-field',2]]){
+ const scene=SCENE_MAP.get(id),settings=applyLook(id,v);gpu.resetFeedback();gpu.setMedia(['reactive-typography','media-reactive'].includes(id)?type:null);
+ const spectrum=new Uint8Array(128),waveform=new Uint8Array(256);waveform.fill(128);
+ const frame={camera:[.25,-.15,1],sceneIndex:scene.index,variant:v,gradientStyle:v,params:scene.params.map(p=>settings[p.id].value),signals:[.35,.2,.3,.2,.4,.4,.5,.2],colors:PALETTES[1].stops,colorControls:{},time:6,width:540,height:340};
+ if(false){for(let f=0;f<96;f++){for(let k=0;k<128;k++)spectrum[k]=Math.floor(230*Math.exp(-(((k-30-18*Math.sin(f*.12))/12)**2))+100*Math.exp(-(((k-85)/18)**2)));gpu.render({...frame,time:f*.05,spectrum,waveform});}}
+ else gpu.render(frame);
+ const error=gpu.gl.getError();if(error)throw Error(id+' GL '+error);
+ const pixels=new Uint8Array(540*340*4);gpu.gl.readPixels(0,0,540,340,gpu.gl.RGBA,gpu.gl.UNSIGNED_BYTE,pixels);let energy=0;for(let i=0;i<pixels.length;i+=4)energy+=pixels[i]+pixels[i+1]+pixels[i+2];if(!energy)throw Error('Empty '+id);
+ const data=canvas.toDataURL('image/png');if(!images[id])images[id]=data;card(id+' / '+(LOOKS[id]?.[v]||v),data);results.push('✓ '+id);
+ await new Promise(r=>setTimeout(r,0));
+}
+const photo=document.createElement('canvas');photo.width=540;photo.height=340;const c=photo.getContext('2d');const gradient=c.createLinearGradient(0,0,540,340);gradient.addColorStop(0,'#092039');gradient.addColorStop(.5,'#eae3cf');gradient.addColorStop(1,'#9b244b');c.fillStyle=gradient;c.fillRect(0,0,540,340);c.fillStyle='#15151a';c.beginPath();c.ellipse(270,165,95,135,-.3,0,Math.PI*2);c.fill();c.strokeStyle='#fafafa';c.lineWidth=12;c.beginPath();c.ellipse(250,170,175,90,.4,0,Math.PI*2);c.stroke();const source=c.getImageData(0,0,540,340);
+for(const mode of [41,42,43]){const fx=imagePresets.find(x=>x.mode===mode),out=processEffect(source,fx);if(out.data.some((v,i)=>i%4===3&&v!==255))throw Error('Alpha '+mode);c.putImageData(out,0,0);card(fx.name,photo.toDataURL('image/png'));results.push('✓ '+fx.name);}
+document.querySelector('#status').textContent=results.join(' · ');
+}catch(e){document.querySelector('#status').textContent=e.stack}finally{gpu.dispose()}
+document.querySelector('#save').onclick=()=>{const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([JSON.stringify(images)],{type:'application/json'}));a.download='sekret-stage2-previews.json';a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1000)};
+</script>

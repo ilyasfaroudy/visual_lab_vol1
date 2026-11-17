@@ -1,0 +1,12 @@
+export const $=(s,scope=document)=>scope.querySelector(s);
+export const $$=(s,scope=document)=>[...scope.querySelectorAll(s)];
+export const uid=()=>crypto.randomUUID?.()||Math.random().toString(36).slice(2);
+export const clamp=(v,min,max)=>Math.min(max,Math.max(min,Number.isFinite(v)?v:min));
+export const safe=(value)=>String(value??'').replace(/[&<>"']/g,x=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[x]));
+export const slug=s=>String(s).replace(/[^a-z0-9-_]/gi,'_').slice(0,80)||'sekret';
+export const formatTime=(n)=>`${String(Math.floor((n||0)/60)).padStart(2,'0')}:${String(Math.floor((n||0)%60)).padStart(2,'0')}`;
+export const download=(blob,name)=>{const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download=name;document.body.append(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),12000)};
+export const filePicker=(accept,multiple=false)=>new Promise(resolve=>{const el=document.createElement('input');el.type='file';el.accept=accept;el.multiple=multiple;el.hidden=true;document.body.append(el);el.onchange=()=>{const files=[...el.files];el.remove();resolve(files)};el.oncancel=()=>{el.remove();resolve([])};el.click()});
+export const toast=(message,type='info')=>{let box=$('#toast');if(!box){box=document.createElement('div');box.id='toast';box.setAttribute('role','status');document.body.append(box)}box.textContent=message;box.dataset.type=type;box.classList.add('visible');clearTimeout(toast.t);toast.t=setTimeout(()=>box.classList.remove('visible'),3800)};
+export const nextFrame=()=>new Promise(r=>requestAnimationFrame(r));
+export const blobFromCanvas=(c,type='image/png',quality=.92)=>new Promise((res,rej)=>c.toBlob(b=>b?res(b):rej(Error('Canvas export failed')),type,quality));
